@@ -23,7 +23,7 @@
     "docs": "typedoc"
   },
   "dependencies": {
-    "@twick/media-utils": "workspace:^0.14.0",
+    "@twick/media-utils": "file:../media-utils",
     "posthog-js": "^1.258.5"
   },
   "devDependencies": {

@@ -23,7 +23,7 @@
   "dependencies": {
     "@twick/core": "^0.14.0",
     "@twick/player-react": "^0.14.0",
-    "@twick/visualizer": "workspace:^0.14.0",
+    "@twick/visualizer": "file:../visualizer",
     "react": "^18.2.0"
   },
   "devDependencies": {

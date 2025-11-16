@@ -51,6 +51,12 @@ export interface PlayerControlsProps {
   canRedo: boolean;
   /** Current player state (playing, paused, refresh) */
   playerState: keyof typeof PLAYER_STATE;
+  /** Whether zoom is fit-to-timeline */
+  fitMode?: boolean;
+  /** Actual zoom when in fit mode */
+  actualZoom?: number;
+  /** Toggle fit/manual zoom */
+  onToggleFit?: () => void;
   /** Function to toggle between play and pause */
   togglePlayback: () => void;
   /** Optional callback for undo operation */
@@ -76,6 +82,9 @@ const PlayerControls: React.FC<PlayerControlsProps> = ({
   duration,
   currentTime,
   playerState,
+  fitMode = false,
+  actualZoom,
+  onToggleFit,
   togglePlayback,
   canUndo = false,
   canRedo = false,
@@ -170,8 +179,8 @@ const PlayerControls: React.FC<PlayerControlsProps> = ({
               ? "Refreshing"
               : "Play"
           }
-          className="control-btn play-pause-btn"
-        >
+        className="control-btn play-pause-btn"
+      >
           {playerState === PLAYER_STATE.PLAYING ? (
             <Pause className="icon-lg" />
           ) : playerState === PLAYER_STATE.REFRESH ? (
@@ -194,24 +203,33 @@ const PlayerControls: React.FC<PlayerControlsProps> = ({
         <div className="twick-track-zoom-container">
           <button
             onClick={handleZoomOut}
-            disabled={zoomLevel <= MIN_ZOOM}
+            disabled={fitMode || zoomLevel <= MIN_ZOOM}
             title="Zoom Out"
             className={`control-btn ${
-              zoomLevel <= MIN_ZOOM ? "btn-disabled" : ""
+              fitMode || zoomLevel <= MIN_ZOOM ? "btn-disabled" : ""
             }`}
           >
             <ZoomOut className="icon-md" />
           </button>
 
           {/* Zoom Level Display */}
-          <div className="zoom-level">{Math.round(zoomLevel * 100)}%</div>
+          <button
+            className="zoom-level twick-fit-toggle"
+            type="button"
+            onClick={onToggleFit}
+            title="Toggle fit timeline"
+            disabled={!onToggleFit}
+            style={{ cursor: onToggleFit ? "pointer" : "default" }}
+          >
+            {Math.round((fitMode ? actualZoom ?? zoomLevel : zoomLevel) * 100)}%
+          </button>
 
           <button
             onClick={handleZoomIn}
-            disabled={zoomLevel >= MAX_ZOOM}
+            disabled={fitMode || zoomLevel >= MAX_ZOOM}
             title="Zoom In"
             className={`control-btn ${
-              zoomLevel >= MAX_ZOOM ? "btn-disabled" : ""
+              fitMode || zoomLevel >= MAX_ZOOM ? "btn-disabled" : ""
             }`}
           >
             <ZoomIn className="icon-md" />
