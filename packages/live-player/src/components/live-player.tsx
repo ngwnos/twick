@@ -251,6 +251,7 @@ export const LivePlayer = ({
   const intrinsicHeight =
     videoSize?.height || baseProject.input?.properties?.height || DEFAULT_VIDEO_SIZE.height;
 
+  // Use contain scaling for the underlying player, but force the wrapper to fill and clip overflow via CSS.
   const scale =
     containerSize && containerSize.width > 0 && containerSize.height > 0
       ? Math.min(containerSize.width / intrinsicWidth, containerSize.height / intrinsicHeight)
@@ -286,6 +287,7 @@ export const LivePlayer = ({
         height: "100%",
         justifyContent: "center",
         alignItems: "center",
+        overflow: "hidden",
         ...(containerStyle || {}),
       }}
     >

@@ -51,6 +51,15 @@
   color: #fff;
 }
 
+.twick-editor-container twick-player,
+.twick-editor-container .twick-player-root,
+.twick-editor-container .twick-player-root > div {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+}
+
 .twick-editor-canvas-container {
   position: absolute;
   top: 0;
