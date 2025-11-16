@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Player as CorePlayer } from "@twick/core";
 import { Player } from "@twick/player-react";
 import { generateId, getBaseProject } from "../helpers/player.utils";
@@ -99,6 +99,10 @@ export const LivePlayer = ({
     [videoSize]
   );
   const playerContainerRef = useRef<HTMLDivElement | null>(null);
+  const [containerSize, setContainerSize] = useState<{
+    width: number;
+    height: number;
+  } | null>(null);
 
   /**
    * Handle time updates from the player and relay to external callback.
@@ -228,6 +232,33 @@ export const LivePlayer = ({
     }
   }, [playing]);
 
+  // Track container size to scale the player up to the available space
+  useEffect(() => {
+    const el = playerContainerRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect;
+        setContainerSize({ width, height });
+      }
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const intrinsicWidth =
+    videoSize?.width || baseProject.input?.properties?.width || DEFAULT_VIDEO_SIZE.width;
+  const intrinsicHeight =
+    videoSize?.height || baseProject.input?.properties?.height || DEFAULT_VIDEO_SIZE.height;
+
+  const scale =
+    containerSize && containerSize.width > 0 && containerSize.height > 0
+      ? Math.min(containerSize.width / intrinsicWidth, containerSize.height / intrinsicHeight)
+      : 1;
+
+  const renderWidth = Math.round(intrinsicWidth * scale);
+  const renderHeight = Math.round(intrinsicHeight * scale);
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       window.addEventListener(
@@ -268,10 +299,8 @@ export const LivePlayer = ({
         quality={quality}
         onTimeUpdate={onCurrentTimeUpdate}
         onPlayerReady={handlePlayerReady}
-        width={baseProject.input?.properties?.width || DEFAULT_VIDEO_SIZE.width}
-        height={
-          baseProject?.input?.properties?.height || DEFAULT_VIDEO_SIZE.height
-        }
+        width={renderWidth}
+        height={renderHeight}
         timeDisplayFormat="MM:SS.mm"
         onDurationChange={(e) => {
           if (onDurationChange) {
