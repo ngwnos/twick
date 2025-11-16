@@ -15,7 +15,7 @@ const ControlManager = ({
   setTrackZoom: (zoom: number) => void;
   zoomConfig: TimelineZoomConfig;
 }) => {
-  const [fitMode, setFitMode] = useState(false);
+  const [fitMode, setFitMode] = useState(true);
   const [fitZoom, setFitZoom] = useState<number | null>(null);
   const { currentTime, playerState } = useLivePlayerContext();
   const { togglePlayback } = usePlayerControl();
