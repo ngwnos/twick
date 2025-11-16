@@ -60,6 +60,8 @@ export const PlayerManager = ({
       height: container?.clientHeight,
     };
     buildCanvas({
+      frameScale: 0.9,
+      showFrameGuide: true,
       backgroundColor: videoProps.backgroundColor,
       videoSize: {
         width: videoProps.width,

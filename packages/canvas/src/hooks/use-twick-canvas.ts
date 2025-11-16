@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Canvas as FabricCanvas, FabricObject } from "fabric";
+import { Canvas as FabricCanvas, FabricObject, Rect } from "fabric";
 import { Dimensions } from "@twick/media-utils";
 import {
   CanvasMetadata,
@@ -116,7 +116,13 @@ export const useTwickCanvas = ({
     enableRetinaScaling = true,
     touchZoomThreshold = 10,
     forceBuild = false,
-  }: CanvasProps & { forceBuild?: boolean }) => {
+    frameScale = 1,
+    showFrameGuide = false,
+  }: CanvasProps & {
+    forceBuild?: boolean;
+    frameScale?: number;
+    showFrameGuide?: boolean;
+  }) => {
     if (!canvasRef) return;
 
     if (
@@ -146,7 +152,13 @@ export const useTwickCanvas = ({
       enableRetinaScaling,
       touchZoomThreshold,
     });
-    canvasMetadataRef.current = canvasMetadata;
+    // Apply optional frame scaling to leave padding around the project frame
+    const scaledMetadata = {
+      ...canvasMetadata,
+      scaleX: canvasMetadata.scaleX * frameScale,
+      scaleY: canvasMetadata.scaleY * frameScale,
+    };
+    canvasMetadataRef.current = scaledMetadata;
     videoSizeRef.current = videoSize;
     // Attach event listeners
     canvas?.on("mouse:up", handleMouseUp);
@@ -154,6 +166,34 @@ export const useTwickCanvas = ({
     setTwickCanvas(canvas);
     twickCanvasRef.current = canvas;
     // Notify when canvas is ready
+    if (showFrameGuide) {
+      const frameRect = new Rect({
+        left: canvasResolutionRef.current.width / 2,
+        top: canvasResolutionRef.current.height / 2,
+        originX: "center",
+        originY: "center",
+        width: videoSize.width * scaledMetadata.scaleX,
+        height: videoSize.height * scaledMetadata.scaleY,
+        stroke: "#ffffff",
+        strokeWidth: 1,
+        fill: "transparent",
+        selectable: false,
+        evented: false,
+        excludeFromExport: true,
+        hoverCursor: "default",
+      });
+      canvas.add(frameRect);
+      const guide = frameRect as any;
+      if (guide.sendToBack) {
+        guide.sendToBack();
+      } else {
+        const anyCanvas = canvas as any;
+        if (anyCanvas.sendToBack) {
+          anyCanvas.sendToBack(frameRect);
+        }
+      }
+    }
+
     if (onCanvasReady) {
       onCanvasReady(canvas);
     }
